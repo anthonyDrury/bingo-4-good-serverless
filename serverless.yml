@@ -1,0 +1,55 @@
+service:
+  name: bingo-4-good-user-service
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+
+# Add the serverless-webpack plugin
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  environment:
+      MONGO_USER: ${file(./config.js):MONGO_USER}
+      MONGO_PASSWORD: ${file(./config.js):MONGO_PASSWORD}
+      MONGO_ADDRESS: ${file(./config.js):MONGO_ADDRESS}
+  logs:
+    httpApi: true
+
+functions:
+  getCurrentUser:
+    handler: src/handlers/get.getCurrentUser
+    events:
+      - http:
+          path: getCurrentUser
+          method: get
+          cors: true
+  getFriends:
+    handler: src/handlers/post.getFriends
+    events:
+      - http:
+          path: getFriends
+          method: post
+          cors: true
+  addFriend:
+    events:
+      - http:
+          path: addFriend
+          method: post
+          cors: true
+    handler: src/handlers/post.addFriend
+  searchUsers:
+    events:
+      - http:
+          path: searchUsers
+          method: post
+          cors: true
+    handler: src/handlers/post.searchUsers
+    
