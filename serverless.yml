@@ -16,12 +16,24 @@ provider:
   runtime: nodejs12.x
   apiGateway:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  
   environment:
       MONGO_USER: ${file(./config.js):MONGO_USER}
       MONGO_PASSWORD: ${file(./config.js):MONGO_PASSWORD}
       MONGO_ADDRESS: ${file(./config.js):MONGO_ADDRESS}
+      DYNAMODB_TABLE: Users
   logs:
     httpApi: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
 functions:
   getCurrentUser:
@@ -49,7 +61,38 @@ functions:
     events:
       - http:
           path: searchUsers
+          method: get
+          cors: true
+          querystrings:
+                url: true
+    handler: src/handlers/get.searchUsers
+  registerUser:
+    events:
+      - http:
+          path: registerUser
           method: post
           cors: true
-    handler: src/handlers/post.searchUsers
+          authorizer: authorizerFunc
+    handler: src/handlers/post.registerUser
+  authorizerFunc:
+    handler: src/handlers/authorizer.authorize
     
+  
+resources:
+  Resources:
+    Users:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain # Keeps around the DynamoDB resource when we redeploy/destroy
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: _id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: _id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}

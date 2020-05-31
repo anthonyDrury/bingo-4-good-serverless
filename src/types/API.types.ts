@@ -5,5 +5,5 @@ export type shortUser = {
 
 export type baseUser = {
   email: string;
-  userName?: string;
+  userName: string;
 };

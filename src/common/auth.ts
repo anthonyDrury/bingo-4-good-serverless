@@ -12,6 +12,7 @@ export interface ClaimVerifyResult {
   readonly clientId: string;
   readonly isValid: boolean;
   readonly error?: any;
+  readonly sub: string;
 }
 
 interface TokenHeader {
@@ -44,6 +45,7 @@ interface Claim {
   auth_time: number;
   iss: string;
   exp: number;
+  sub: string;
   username: string;
   client_id: string;
 }
@@ -100,11 +102,12 @@ const authHandler = async (token: string): Promise<ClaimVerifyResult> => {
     result = {
       userName: claim.username,
       clientId: claim.client_id,
+      sub: claim.sub,
       isValid: true,
     };
   } catch (error) {
     console.log(error);
-    result = { userName: "", clientId: "", error, isValid: false };
+    result = { userName: "", clientId: "", error, sub: "", isValid: false };
   }
   return result;
 };

@@ -24,39 +24,6 @@ async function clientConnection(): Promise<MongoClient> {
   return cachedClient;
 }
 
-export async function findUsers(searchTerm: string): Promise<shortUser[]> {
-  const client = await clientConnection();
-  const results: shortUser[] = [];
-
-  return new Promise(
-    (resolve: () => void, reject: (err: string) => void): void => {
-      const collection = client.db("Users").collection("User");
-      collection
-        .find({ userName: { $regex: searchTerm } })
-        .forEach((item: usersCollection): void => {
-          results.push({ _id: item._id, userName: item.userName });
-        })
-        .then(
-          (): void => {
-            console.log("search finished");
-            resolve();
-          },
-          (reason: string): void => {
-            console.log("ERROR: FIND FRIENDS - " + reason);
-            reject(reason);
-          }
-        );
-    }
-  ).then(
-    (): shortUser[] => {
-      return results;
-    },
-    (err: string): never => {
-      console.log("ERROR: SEARCH USER - " + err);
-      throw new Error(err);
-    }
-  );
-}
 export async function getUsers(userIDs: string[]): Promise<shortUser[]> {
   const client = await clientConnection();
   const results: shortUser[] = [];
@@ -83,39 +50,6 @@ export async function getUsers(userIDs: string[]): Promise<shortUser[]> {
   ).then(
     (): shortUser[] => {
       return results;
-    },
-    (err: string): never => {
-      console.log("ERROR: SEARCH USER - " + err);
-      throw new Error(err);
-    }
-  );
-}
-
-export async function addFriendIDToUser(
-  currentUserName: string,
-  _id: string
-): Promise<void> {
-  const client = await clientConnection();
-
-  return new Promise(
-    (resolve: () => void, reject: (err: string) => void): void => {
-      const collection = client.db("Users").collection("User");
-
-      collection
-        .update({ userName: currentUserName }, { $addToSet: { friends: _id } })
-        .then(
-          (): void => {
-            resolve();
-          },
-          (reason: string): void => {
-            console.log("ERROR: FIND FRIENDS - " + reason);
-            reject(reason);
-          }
-        );
-    }
-  ).then(
-    (): void => {
-      // noop
     },
     (err: string): never => {
       console.log("ERROR: SEARCH USER - " + err);
