@@ -21,6 +21,7 @@ provider:
     USERS_TABLE: Users
     BINGO_CARDS_TABLE: Bingo_Cards
     BINGO_ITEMS_TABLE: Bingo_Items
+    COGNITO_ISSUER: ${file(../config.js).COGNITO_ISSUER}
   logs:
     httpApi: true
   iamRoleStatements:
