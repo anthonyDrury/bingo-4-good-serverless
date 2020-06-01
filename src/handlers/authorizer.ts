@@ -4,16 +4,9 @@ import { APIGatewayTokenAuthorizerHandler } from "aws-lambda";
 import { isAuthValid } from "../common/isAuthValid";
 import { ClaimVerifyResult } from "../common/auth";
 
-export const authorize: APIGatewayTokenAuthorizerHandler = async (
-  event,
-  context
-) => {
-  let claimResult: ClaimVerifyResult;
-
-  await isAuthValid(event.authorizationToken).then(
-    async (claim): Promise<void> => {
-      claimResult = claim;
-    }
+export const authorize: APIGatewayTokenAuthorizerHandler = async (event) => {
+  let claimResult: ClaimVerifyResult = await isAuthValid(
+    event.authorizationToken
   );
 
   if (claimResult.isValid) {

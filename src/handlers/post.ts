@@ -1,27 +1,33 @@
 "use strict";
 
-import { shortUser } from "../types/API.types";
 import {
   APIGatewayProxyHandler,
   APIGatewayProxyResult,
 } from "aws-lambda/trigger/api-gateway-proxy";
 import { isDefined } from "../common/support";
-import { getUsers } from "../clients/mongo.client";
-import { addNewUser, addFriendIDToUser } from "../clients/dynamo.client";
+import {
+  addNewUser,
+  addFriendIDToUser,
+  getUsers,
+} from "../clients/dynamo-users.client";
 
 // POST
 // BODY PARAMS:
 // userIDs REQUIRED
-export const getFriends: APIGatewayProxyHandler = async (event, context) => {
-  context.callbackWaitsForEmptyEventLoop = false;
+export const getFriends: APIGatewayProxyHandler = async (event) => {
   let result: APIGatewayProxyResult;
   const body = JSON.parse(event.body);
   if (!isDefined(body.userIDs)) {
     return { statusCode: 500, body: "No body param: userIDs" };
   }
-  await getUsers(body.userIDs).then((users: shortUser[]): void => {
-    result = { statusCode: 200, body: JSON.stringify(users) };
-  });
+  await getUsers(body.userIDs).then(
+    (success): void => {
+      result = success;
+    },
+    (error) => {
+      result = error;
+    }
+  );
 
   return result;
 };
@@ -29,8 +35,7 @@ export const getFriends: APIGatewayProxyHandler = async (event, context) => {
 // POST
 // BODY PARAMS:
 // _id REQUIRED
-export const addFriend: APIGatewayProxyHandler = async (event, context) => {
-  context.callbackWaitsForEmptyEventLoop = false;
+export const addFriend: APIGatewayProxyHandler = async (event) => {
   let result: APIGatewayProxyResult;
   const claimedUserName = event.requestContext.authorizer.principalId;
   const body = JSON.parse(event.body);
@@ -53,8 +58,7 @@ export const addFriend: APIGatewayProxyHandler = async (event, context) => {
   return result;
 };
 
-export const registerUser: APIGatewayProxyHandler = async (event, context) => {
-  context.callbackWaitsForEmptyEventLoop = false;
+export const registerUser: APIGatewayProxyHandler = async (event) => {
   let result: APIGatewayProxyResult;
   const body = JSON.parse(event.body);
   const claimedUserName = event.requestContext.authorizer.principalId;

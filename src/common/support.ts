@@ -1,5 +1,5 @@
 import { baseUser } from "../types/API.types";
-import { usersCollection } from "../types/mongo.type";
+import { usersCollection } from "../types/dynamo.type";
 
 export function isDefined(x: any | undefined | null): boolean {
   return x !== undefined && x !== null;
