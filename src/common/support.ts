@@ -19,3 +19,30 @@ export function generateUser(base: baseUser): usersCollection {
     },
   };
 }
+
+export function shuffleArr(array: number[]) {
+  let i = array.length;
+  let j = 0;
+  let temp;
+
+  while (i--) {
+    j = Math.floor(Math.random() * (i + 1));
+
+    // swap randomly chosen element with current element
+    temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+
+  return array;
+}
+
+export function generateAccumulateArr(num: number): number[] {
+  const newArr: number[] = [];
+
+  for (let i = 0; i < num; i++) {
+    newArr.push(i);
+  }
+
+  return newArr;
+}

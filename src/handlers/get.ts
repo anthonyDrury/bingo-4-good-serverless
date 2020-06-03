@@ -3,6 +3,7 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import { isDefined } from "../common/support";
 import { findUsers, getUser } from "../clients/dynamo-users.client";
+import { scheduledBingoCardCreation } from "../clients/dynamo-admin.client";
 
 export const getCurrentUser: APIGatewayProxyHandler = async (event) => {
   let response: APIGatewayProxyResult;
@@ -19,7 +20,9 @@ export const searchUsers: APIGatewayProxyHandler = async (event) => {
   if (!isDefined(event.queryStringParameters.search)) {
     result = { statusCode: 500, body: "No query param: search" };
   }
-  await findUsers(event.queryStringParameters.search).then(
+
+  await scheduledBingoCardCreation().then(
+    // await findUsers(event.queryStringParameters.search).then(
     (response): void => {
       result = response;
     },

@@ -1,4 +1,6 @@
 // Users Table types
+
+// _id - primary key
 export type usersCollection = {
   _id?: string;
   userName: string;
@@ -20,30 +22,39 @@ export type friends = {
 };
 
 export type userAnswer = {
-  statementID: string;
+  itemID: string;
   answer: string;
   dateAnswered: Date;
 };
 
 // Bingo_Card Table types
 
+// _id - primary key
+// date - sort key
 export type bingoCardCollection = {
-  _id: string;
+  dateUsed: number;
   items: bingoItemShort[];
-  date: Date;
-  disabled?: boolean;
 };
 
 export type bingoItemShort = {
-  itemID: string;
+  _id: string;
   statement: string;
   position: number;
 };
 
 // Bingo_Items Table types
 
+// _id - primary key
 export type bingoItems = {
   _id: string;
   statement: string;
-  lastUsedDate: Date;
+  prevUsed: number[];
+  lastUsedDate?: number;
+  disabled: boolean;
+};
+
+// Bingo Manage Table types
+export type bingoManage = {
+  _id: 0;
+  latestCardDate: number; // YYYYMMDD
 };

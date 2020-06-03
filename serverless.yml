@@ -1,5 +1,5 @@
 service:
-  name: bingo-4-good-user-service
+  name: bingo-4-good-serverless
 
 custom:
   webpack:
@@ -21,6 +21,7 @@ provider:
     USERS_TABLE: Users
     BINGO_CARDS_TABLE: Bingo_Cards
     BINGO_ITEMS_TABLE: Bingo_Items
+    BINGO_MANAGE_TABLE: Bingo_Manage
     COGNITO_ISSUER: ${file(../config.js).COGNITO_ISSUER}
   logs:
     httpApi: true
