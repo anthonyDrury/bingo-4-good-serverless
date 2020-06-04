@@ -9,14 +9,11 @@ export function generateUser(base: baseUser): usersCollection {
   return {
     ...base,
     status: "free",
-    answers: [],
     friends: [],
-    properties: {
-      points: 0,
-      streak: 0,
-      highestPoints: 0,
-      highestStreak: 0,
-    },
+    points: 0,
+    streak: 0,
+    highestPoints: 0,
+    highestStreak: 0,
   };
 }
 

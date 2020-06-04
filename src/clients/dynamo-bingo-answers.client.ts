@@ -1,15 +1,16 @@
 import { DynamoDB } from "aws-sdk";
 import { APIGatewayProxyResult } from "aws-lambda";
+import { bingoAnswers } from "../types/dynamo.type";
 
 const dynamoDb = new DynamoDB.DocumentClient();
-const BingoCardTable = process.env.BINGO_CARDS_TABLE;
+const BingoAnswerTable = process.env.BINGO_ANSWERS_TABLE;
 
-export async function getBingoCardFromTable(date: number) {
-  const params: DynamoDB.DocumentClient.GetItemInput = {
-    TableName: BingoCardTable,
-    Key: {
-      dateUsed: date,
-    },
+export async function addAnswerToList(
+  newAnswer: bingoAnswers
+): Promise<APIGatewayProxyResult> {
+  const params: DynamoDB.DocumentClient.UpdateItemInput = {
+    TableName: BingoAnswerTable,
+    Key: newAnswer,
   };
 
   return await new Promise(
@@ -17,9 +18,12 @@ export async function getBingoCardFromTable(date: number) {
       resolve: (x: APIGatewayProxyResult) => void,
       reject: (err: APIGatewayProxyResult) => void
     ): void => {
-      dynamoDb.get(params, (error, data) => {
+      dynamoDb.update(params, (error, data) => {
         if (error) {
-          reject({ statusCode: Number(error.code), body: error.message });
+          reject({
+            statusCode: Number(error.code),
+            body: error.message,
+          });
           return;
         }
         resolve({

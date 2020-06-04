@@ -22,6 +22,7 @@ provider:
     BINGO_CARDS_TABLE: Bingo_Cards
     BINGO_ITEMS_TABLE: Bingo_Items
     BINGO_MANAGE_TABLE: Bingo_Manage
+    BINGO_ANSWERS_TABLE: Bingo_Answers
     COGNITO_ISSUER: ${file(../config.js).COGNITO_ISSUER}
   logs:
     httpApi: true
@@ -47,6 +48,7 @@ functions:
           path: getCurrentUser
           method: get
           cors: true
+          authorizer: authorizerFunc
   getFriends:
     handler: src/handlers/post.getFriends
     events:
@@ -54,12 +56,24 @@ functions:
           path: getFriends
           method: post
           cors: true
+          authorizer: authorizerFunc
+  getBingoCard:
+    handler: src/handlers/get.getBingoCard
+    events:
+      - http:
+          path: getBingoCard
+          method: get
+          cors: true
+          querystrings:
+            url: true
+          authorizer: authorizerFunc
   addFriend:
     events:
       - http:
           path: addFriend
           method: post
           cors: true
+          authorizer: authorizerFunc
     handler: src/handlers/post.addFriend
   searchUsers:
     events:
@@ -69,6 +83,7 @@ functions:
           cors: true
           querystrings:
             url: true
+          authorizer: authorizerFunc
     handler: src/handlers/get.searchUsers
   registerUser:
     events:
@@ -78,49 +93,13 @@ functions:
           cors: true
           authorizer: authorizerFunc
     handler: src/handlers/post.registerUser
+  answerItem:
+    events:
+      - http:
+          path: answerItem
+          method: post
+          cors: true
+          authorizer: authorizerFunc
+    handler: src/handlers/post.answerItem
   authorizerFunc:
     handler: src/handlers/authorizer.authorize
-# resources:
-#   Resources:
-#     Users:
-#       Type: AWS::DynamoDB::Table
-#       DeletionPolicy: Retain # Keeps around the DynamoDB resource when we redeploy/destroy
-#       Properties:
-#         AttributeDefinitions:
-#           - AttributeName: _id
-#             AttributeType: S
-#         KeySchema:
-#           - AttributeName: _id
-#             KeyType: HASH
-#         ProvisionedThroughput:
-#           ReadCapacityUnits: 1
-#           WriteCapacityUnits: 1
-#         TableName: ${self:provider.environment.USERS_TABLE}
-#     Bingo_cards:
-#       Type: AWS::DynamoDB::Table
-#       DeletionPolicy: Retain # Keeps around the DynamoDB resource when we redeploy/destroy
-#       Properties:
-#         AttributeDefinitions:
-#           - AttributeName: _id
-#             AttributeType: S
-#         KeySchema:
-#           - AttributeName: _id
-#             KeyType: HASH
-#         ProvisionedThroughput:
-#           ReadCapacityUnits: 1
-#           WriteCapacityUnits: 1
-#         TableName: ${self:provider.environment.BINGO_CARDS_TABLE}
-#     Bingo_Items:
-#       Type: AWS::DynamoDB::Table
-#       DeletionPolicy: Retain # Keeps around the DynamoDB resource when we redeploy/destroy
-#       Properties:
-#         AttributeDefinitions:
-#           - AttributeName: _id
-#             AttributeType: S
-#         KeySchema:
-#           - AttributeName: _id
-#             KeyType: HASH
-#         ProvisionedThroughput:
-#           ReadCapacityUnits: 1
-#           WriteCapacityUnits: 1
-#         TableName: ${self:provider.environment.BINGO_ITEMS_TABLE}

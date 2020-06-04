@@ -6,14 +6,11 @@ export type usersCollection = {
   userName: string;
   email: string;
   status: "free" | "paid" | "admin";
-  answers: userAnswer[];
   friends: friends[];
-  properties: {
-    points: number;
-    streak: number;
-    highestPoints: number;
-    highestStreak: number;
-  };
+  points: number;
+  streak: number;
+  highestPoints: number;
+  highestStreak: number;
 };
 
 export type friends = {
@@ -37,7 +34,7 @@ export type bingoCardCollection = {
 };
 
 export type bingoItemShort = {
-  _id: string;
+  itemIndex: number;
   statement: string;
   position: number;
 };
@@ -45,8 +42,10 @@ export type bingoItemShort = {
 // Bingo_Items Table types
 
 // _id - primary key
+// index - sort key
 export type bingoItems = {
   _id: string;
+  index: number;
   statement: string;
   prevUsed: number[];
   lastUsedDate?: number;
@@ -57,4 +56,16 @@ export type bingoItems = {
 export type bingoManage = {
   _id: 0;
   latestCardDate: number; // YYYYMMDD
+};
+
+// Bingo Answers Table types
+export type bingoAnswers = {
+  cardDate: number;
+  userID: string;
+  answers: bingAnswersMap[];
+};
+
+export type bingAnswersMap = bingoItemShort & {
+  answer: string;
+  private: boolean;
 };

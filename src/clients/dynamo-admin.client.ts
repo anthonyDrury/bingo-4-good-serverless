@@ -28,7 +28,7 @@ function addOneDay(date: number): number {
 
 // Creates five more days of Bingo Cards
 // Never called by user, does not need to be efficient
-// Called by Rate event
+// Called by Rate event every 5 days
 export async function scheduledBingoCardCreation(): Promise<
   APIGatewayProxyResult
 > {
@@ -169,7 +169,7 @@ export async function scheduledBingoCardCreation(): Promise<
       dateUsed: newDate,
       items: (bingoItems as bingoItems[]).map((item, index) => {
         return {
-          _id: item._id,
+          itemIndex: item.index,
           statement: item.statement,
           position: index,
         };
@@ -226,7 +226,7 @@ export async function scheduledBingoCardCreation(): Promise<
       resolve: (x: APIGatewayProxyResult) => void,
       reject: (err: APIGatewayProxyResult) => void
     ): void => {
-      dynamoDb.update(updateManageParams, (error, data) => {
+      dynamoDb.update(updateManageParams, (error) => {
         if (error) {
           reject({ statusCode: Number(error.code), body: error.message });
         }
