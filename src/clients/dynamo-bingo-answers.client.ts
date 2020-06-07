@@ -5,12 +5,12 @@ import { bingoAnswers } from "../types/dynamo.type";
 const dynamoDb = new DynamoDB.DocumentClient();
 const BingoAnswerTable = process.env.BINGO_ANSWERS_TABLE;
 
-export async function addAnswerToList(
+export async function updateAnswer(
   newAnswer: bingoAnswers
 ): Promise<APIGatewayProxyResult> {
-  const params: DynamoDB.DocumentClient.UpdateItemInput = {
+  const params: DynamoDB.DocumentClient.PutItemInput = {
     TableName: BingoAnswerTable,
-    Key: newAnswer,
+    Item: newAnswer,
   };
 
   return await new Promise(
@@ -18,7 +18,7 @@ export async function addAnswerToList(
       resolve: (x: APIGatewayProxyResult) => void,
       reject: (err: APIGatewayProxyResult) => void
     ): void => {
-      dynamoDb.update(params, (error, data) => {
+      dynamoDb.put(params, (error, data) => {
         if (error) {
           reject({
             statusCode: Number(error.code),

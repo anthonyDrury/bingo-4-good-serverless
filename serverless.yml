@@ -87,12 +87,10 @@ functions:
     handler: src/handlers/get.searchUsers
   registerUser:
     events:
-      - http:
-          path: registerUser
-          method: post
-          cors: true
-          authorizer: authorizerFunc
-    handler: src/handlers/post.registerUser
+      - cognitoUserPool:
+          pool: Bingo4GoodApp
+          trigger: PostConfirmation
+    handler: src/handlers/admin.registerUser
   answerItem:
     events:
       - http:

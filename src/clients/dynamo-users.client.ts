@@ -6,15 +6,13 @@ import { usersCollection } from "../types/dynamo.type";
 const dynamoDb = new DynamoDB.DocumentClient();
 
 export async function addNewUser(
-  _id: string,
-  userName: string,
+  username: string,
   email: string
 ): Promise<void | APIGatewayProxyResult> {
   const params = {
     TableName: process.env.USERS_TABLE,
     Item: {
-      _id,
-      ...generateUser({ userName, email }),
+      ...generateUser({ username, email }),
     } as usersCollection,
   };
 
@@ -25,7 +23,10 @@ export async function addNewUser(
     ): void => {
       dynamoDb.put(params, (error, data) => {
         if (error) {
-          reject({ statusCode: Number(error.code), body: error.message });
+          reject({
+            statusCode: Number(error.code),
+            body: error.message,
+          });
           return;
         }
         resolve({
@@ -79,11 +80,11 @@ export async function findUsers(
   );
 }
 
-export async function getUser(_id: string) {
+export async function getUser(userName: string) {
   const params: DynamoDB.DocumentClient.GetItemInput = {
     TableName: process.env.USERS_TABLE,
     Key: {
-      _id,
+      userName,
     },
   };
 
@@ -113,13 +114,15 @@ export async function getUser(_id: string) {
   );
 }
 
-export async function getUsers(ids: string[]): Promise<APIGatewayProxyResult> {
+export async function getUsers(
+  usernames: string[]
+): Promise<APIGatewayProxyResult> {
   const params: DynamoDB.DocumentClient.BatchGetItemInput = {
     RequestItems: {
       [process.env.USERS_TABLE]: {
-        Keys: ids.map((_id) => {
+        Keys: usernames.map((username) => {
           return {
-            _id,
+            username,
           };
         }),
       },
@@ -156,17 +159,17 @@ export async function getUsers(ids: string[]): Promise<APIGatewayProxyResult> {
 }
 
 export async function addFriendIDToUser(
-  currentID: string,
-  _id: string
+  currentUsername: string,
+  username: string
 ): Promise<APIGatewayProxyResult> {
   // Add friendID to currentUsers friends[],
   // IF friendID is not already present
   const params: DynamoDB.DocumentClient.UpdateItemInput = {
     TableName: process.env.USERS_TABLE,
     Key: {
-      _id: currentID,
+      username: currentUsername,
     },
-    ExpressionAttributeValues: { ":friendId": [_id] },
+    ExpressionAttributeValues: { ":friendId": [username] },
     UpdateExpression: "set friends = list_append (friends, :friendId)",
     ConditionExpression: "not contains (friends, :friendId)",
   };

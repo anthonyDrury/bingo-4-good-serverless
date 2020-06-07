@@ -2,8 +2,7 @@
 
 // _id - primary key
 export type usersCollection = {
-  _id?: string;
-  userName: string;
+  username: string;
   email: string;
   status: "free" | "paid" | "admin";
   friends: friends[];
@@ -14,7 +13,6 @@ export type usersCollection = {
 };
 
 export type friends = {
-  _id: string;
   userName: string;
 };
 
@@ -26,8 +24,7 @@ export type userAnswer = {
 
 // Bingo_Card Table types
 
-// _id - primary key
-// date - sort key
+// date - primary key
 export type bingoCardCollection = {
   dateUsed: number;
   items: bingoItemShort[];
@@ -61,7 +58,7 @@ export type bingoManage = {
 // Bingo Answers Table types
 export type bingoAnswers = {
   cardDate: number;
-  userID: string;
+  username: string;
   answers: bingAnswersMap[];
 };
 

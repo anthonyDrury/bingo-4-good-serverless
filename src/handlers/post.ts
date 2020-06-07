@@ -1,26 +1,25 @@
 "use strict";
 
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyResult,
-} from "aws-lambda/trigger/api-gateway-proxy";
+import { APIGatewayProxyHandler } from "aws-lambda/trigger/api-gateway-proxy";
 import { isDefined } from "../common/support";
 import {
   addNewUser,
   addFriendIDToUser,
   getUsers,
 } from "../clients/dynamo-users.client";
-import { addAnswerToList } from "../clients/dynamo-bingo-answers.client";
+import { updateAnswer } from "../clients/dynamo-bingo-answers.client";
+import { bingAnswersMap } from "../types/dynamo.type";
+import { CognitoUserPoolTriggerEvent } from "aws-lambda";
 
 // POST
 // BODY PARAMS:
 // userIDs REQUIRED
 export const getFriends: APIGatewayProxyHandler = async (event) => {
   const body = JSON.parse(event.body);
-  if (!isDefined(body.userIDs)) {
-    return { statusCode: 500, body: "No body param: userIDs" };
+  if (!isDefined(body.usernames)) {
+    return { statusCode: 500, body: "No body param: usernames" };
   }
-  await getUsers(body.userIDs).then(
+  await getUsers(body.usernames).then(
     (success) => {
       return success;
     },
@@ -32,18 +31,15 @@ export const getFriends: APIGatewayProxyHandler = async (event) => {
 
 // POST
 // BODY PARAMS:
-// _id REQUIRED
+// friendUsername REQUIRED
 export const addFriend: APIGatewayProxyHandler = async (event) => {
   const claimedUserName = event.requestContext.authorizer.principalId;
   const body = JSON.parse(event.body);
 
-  if (!isDefined(body.friendID)) {
-    return { statusCode: 500, body: "No body param: _id" };
+  if (!isDefined(body.friendUsername)) {
+    return { statusCode: 500, body: "No body param: friendUsername" };
   }
-  if (!isDefined(body.currentID)) {
-    return { statusCode: 500, body: "No body param: _id" };
-  }
-  await addFriendIDToUser(claimedUserName, body._id).then(
+  await addFriendIDToUser(claimedUserName, body.friendUsername).then(
     (success) => {
       return success;
     },
@@ -53,38 +49,42 @@ export const addFriend: APIGatewayProxyHandler = async (event) => {
   );
 };
 
-export const registerUser: APIGatewayProxyHandler = async (event) => {
-  const body = JSON.parse(event.body);
-  const claimedUserName = event.requestContext.authorizer.principalId;
-  const claimedID = event.requestContext.authorizer.claims.sub;
-  if (!isDefined(body.email)) {
-    return { statusCode: 500, body: "No body param: email" };
-  }
-
-  await addNewUser(claimedID, claimedUserName, body.email).then(
-    (value) => {
-      return value;
-    },
-    (err) => {
-      return err;
-    }
-  );
-};
-
 export const answerItem: APIGatewayProxyHandler = async (event) => {
   const body = JSON.parse(event.body);
-  const claimedID = event.requestContext.authorizer.claims.sub;
+  const claimedUsername = event.requestContext.authorizer.principalId;
   if (!isDefined(body.date)) {
     return { statusCode: 500, body: "No body param: date" };
   }
+
+  function isBodyValid(obj: Partial<bingAnswersMap>) {
+    if (
+      !isDefined(obj.answer) ||
+      !isDefined(obj.itemIndex) ||
+      !isDefined(obj.position) ||
+      !isDefined(obj.private) ||
+      !isDefined(obj.statement)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   // TODO: Check validity of object structure
   if (!isDefined(body.answers)) {
     return { statusCode: 500, body: "No body param: answers" };
   }
 
-  await addAnswerToList({
+  const isParamValid =
+    body.answers.length &&
+    (body.answers as []).map(isBodyValid).reduce((prev, curr) => prev && curr);
+
+  if (!isParamValid) {
+    return { statusCode: 500, body: "Invalid param structure: answers" };
+  }
+
+  await updateAnswer({
     cardDate: body.date,
-    userID: claimedID,
+    username: claimedUsername,
     answers: body.answers,
   }).then(
     (value) => {
