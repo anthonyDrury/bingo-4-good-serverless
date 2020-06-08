@@ -48,8 +48,9 @@ export async function scheduledBingoCardCreation(): Promise<
       dynamoDb.get(params, (error, manageData) => {
         if (error) {
           reject({ statusCode: Number(error.code), body: error.message });
+        } else {
+          resolve(manageData.Item as bingoManage);
         }
-        resolve(manageData.Item as bingoManage);
       });
     }
   ).then(
@@ -85,8 +86,9 @@ export async function scheduledBingoCardCreation(): Promise<
         (err: AWSError, data: DynamoDB.DescribeTableOutput) => {
           if (err) {
             reject({ statusCode: Number(err.code), body: err.message });
+          } else {
+            resolve(data.Table);
           }
-          resolve(data.Table);
         }
       );
     }
@@ -118,12 +120,7 @@ export async function scheduledBingoCardCreation(): Promise<
     // TO DO: Get Array of last used index of bingoCard
     // Then use this to filter those index's out of the new card
 
-    // TO DO, change to 16 (when enough item are present)
-    const newCardIndexArr: number[] = shuffleArr(
-      generateAccumulateArr(
-        (itemTableDescription as DynamoDB.TableDescription).ItemCount - 2
-      )
-    );
+    const newCardIndexArr: number[] = shuffleArr(generateAccumulateArr(16));
     const bingoItems = await new Promise(
       (
         resolve: (x: DynamoDB.TableDescription) => void,
@@ -147,8 +144,9 @@ export async function scheduledBingoCardCreation(): Promise<
           (err: AWSError, data: DynamoDB.DocumentClient.BatchGetItemOutput) => {
             if (err) {
               reject({ statusCode: Number(err.code), body: err.message });
+            } else {
+              resolve((data?.Responses as any)["Bingo_Items"]);
             }
-            resolve((data?.Responses as any)["Bingo_Items"]);
           }
         );
       }
@@ -193,8 +191,9 @@ export async function scheduledBingoCardCreation(): Promise<
         (err: AWSError, data: DynamoDB.DocumentClient.BatchWriteItemOutput) => {
           if (err) {
             reject({ statusCode: Number(err.code), body: err.message });
+          } else {
+            resolve({ statusCode: 200, body: JSON.stringify(data) });
           }
-          resolve({ statusCode: 200, body: JSON.stringify(data) });
         }
       );
     }
@@ -229,8 +228,9 @@ export async function scheduledBingoCardCreation(): Promise<
       dynamoDb.update(updateManageParams, (error) => {
         if (error) {
           reject({ statusCode: Number(error.code), body: error.message });
+        } else {
+          resolve({ statusCode: 200, body: "success" });
         }
-        resolve({ statusCode: 200, body: "success" });
       });
     }
   ).then(

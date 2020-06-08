@@ -80,11 +80,11 @@ export async function findUsers(
   );
 }
 
-export async function getUser(userName: string) {
+export async function getUser(username: string) {
   const params: DynamoDB.DocumentClient.GetItemInput = {
     TableName: process.env.USERS_TABLE,
     Key: {
-      userName,
+      username,
     },
   };
 

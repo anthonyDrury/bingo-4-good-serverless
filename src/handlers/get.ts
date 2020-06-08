@@ -7,8 +7,8 @@ import { getBingoCardFromTable } from "../clients/dynamo-bingo-card.client";
 
 export const getCurrentUser: APIGatewayProxyHandler = async (event) => {
   let response: APIGatewayProxyResult;
-  const claimedID = event.requestContext.authorizer.claims.sub;
-  await getUser(claimedID).then((success) => {
+  const claimedUserName = event.requestContext.authorizer.principalId;
+  await getUser(claimedUserName).then((success) => {
     response = success;
   });
   return response;

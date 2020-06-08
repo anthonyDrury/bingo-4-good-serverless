@@ -5,6 +5,10 @@ custom:
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
+  scheduleEnabled:
+    production: true
+    dev: false
+    local: false
 
 # Add the serverless-webpack plugin
 plugins:
@@ -23,7 +27,7 @@ provider:
     BINGO_ITEMS_TABLE: Bingo_Items
     BINGO_MANAGE_TABLE: Bingo_Manage
     BINGO_ANSWERS_TABLE: Bingo_Answers
-    COGNITO_ISSUER: ${file(../config.js).COGNITO_ISSUER}
+    COGNITO_ISSUER: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_2iujgyLTy
   logs:
     httpApi: true
   iamRoleStatements:
@@ -32,13 +36,18 @@ provider:
         - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:GetItem
+        - dynamodb:BatchGetItem
+        - dynamodb:BatchWriteItem
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        - dynamodb:DescribeTable
       Resource:
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}"
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BINGO_CARDS_TABLE}"
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BINGO_ITEMS_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BINGO_MANAGE_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BINGO_ANSWERS_TABLE}"
 
 functions:
   getCurrentUser:
@@ -101,3 +110,9 @@ functions:
     handler: src/handlers/post.answerItem
   authorizerFunc:
     handler: src/handlers/authorizer.authorize
+  scheduledFiveDayBingoCards:
+    handler: src/handlers/admin.scheduledFiveDayBingoCards
+    events:
+      - schedule:
+          rate: rate(5 days)
+          enabled: ${self:custom.scheduleEnabled.${self:provider.stage}}

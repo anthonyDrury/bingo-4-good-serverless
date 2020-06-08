@@ -2,27 +2,28 @@
 
 import { APIGatewayTokenAuthorizerHandler } from "aws-lambda";
 import { isAuthValid } from "../common/isAuthValid";
-import { ClaimVerifyResult } from "../common/auth";
 
-export const authorize: APIGatewayTokenAuthorizerHandler = async (event) => {
-  let claimResult: ClaimVerifyResult = await isAuthValid(
-    event.authorizationToken
+export const authorize: APIGatewayTokenAuthorizerHandler = (
+  event,
+  context,
+  callback
+) => {
+  isAuthValid(event.authorizationToken).then(
+    (claimResult) => {
+      callback(null, {
+        principalId: claimResult.userName,
+        policyDocument: {
+          Version: "2012-10-17",
+          Statement: [
+            {
+              Action: "execute-api:Invoke",
+              Effect: claimResult.isValid ? "Allow" : "Deny",
+              Resource: "*",
+            },
+          ],
+        },
+      });
+    },
+    () => {}
   );
-
-  if (claimResult.isValid) {
-    return {
-      principalId: claimResult.userName,
-      policyDocument: {
-        Version: Date.now().toString(),
-        Statement: [
-          {
-            Action: "execute-api:Invoke",
-            Effect: claimResult.isValid ? "Allow" : "Deny",
-            Resource: "*",
-          },
-        ],
-        context: claimResult,
-      },
-    };
-  }
 };

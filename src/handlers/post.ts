@@ -2,14 +2,9 @@
 
 import { APIGatewayProxyHandler } from "aws-lambda/trigger/api-gateway-proxy";
 import { isDefined } from "../common/support";
-import {
-  addNewUser,
-  addFriendIDToUser,
-  getUsers,
-} from "../clients/dynamo-users.client";
+import { addFriendIDToUser, getUsers } from "../clients/dynamo-users.client";
 import { updateAnswer } from "../clients/dynamo-bingo-answers.client";
 import { bingAnswersMap } from "../types/dynamo.type";
-import { CognitoUserPoolTriggerEvent } from "aws-lambda";
 
 // POST
 // BODY PARAMS:
