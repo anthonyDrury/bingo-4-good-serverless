@@ -41,3 +41,41 @@ export async function updateAnswer(
     }
   );
 }
+
+export async function getAnswers(
+  date: number,
+  username
+): Promise<APIGatewayProxyResult> {
+  const params: DynamoDB.DocumentClient.GetItemInput = {
+    TableName: BingoAnswerTable,
+    Key: { cardDate: date, username },
+  };
+
+  return await new Promise(
+    (
+      resolve: (x: APIGatewayProxyResult) => void,
+      reject: (err: APIGatewayProxyResult) => void
+    ): void => {
+      dynamoDb.get(params, (error, data) => {
+        if (error) {
+          reject({
+            statusCode: Number(error.code),
+            body: error.message,
+          });
+          return;
+        }
+        resolve({
+          statusCode: 200,
+          body: JSON.stringify(data.Item),
+        });
+      });
+    }
+  ).then(
+    (result) => {
+      return result;
+    },
+    (err) => {
+      return err;
+    }
+  );
+}

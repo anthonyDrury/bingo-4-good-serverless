@@ -24,7 +24,7 @@ export async function getBingoCardFromTable(date: number) {
         }
         resolve({
           statusCode: 200,
-          body: JSON.stringify(data),
+          body: JSON.stringify(data.Item),
         });
       });
     }

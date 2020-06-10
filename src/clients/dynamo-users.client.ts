@@ -66,7 +66,7 @@ export async function findUsers(
         }
         resolve({
           statusCode: 200,
-          body: JSON.stringify(data),
+          body: JSON.stringify(data.Items),
         });
       });
     }
@@ -100,7 +100,7 @@ export async function getUser(username: string) {
         }
         resolve({
           statusCode: 200,
-          body: JSON.stringify(data),
+          body: JSON.stringify(data.Item),
         });
       });
     }
@@ -144,7 +144,7 @@ export async function getUsers(
         }
         resolve({
           statusCode: 200,
-          body: JSON.stringify(data),
+          body: JSON.stringify(data.Responses),
         });
       });
     }

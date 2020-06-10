@@ -76,6 +76,16 @@ functions:
           querystrings:
             url: true
           authorizer: authorizerFunc
+  getBingoAnswers:
+    handler: src/handlers/get.getBingoAnswers
+    events:
+      - http:
+          path: getBingoAnswers
+          method: get
+          cors: true
+          querystrings:
+            url: true
+          authorizer: authorizerFunc
   addFriend:
     events:
       - http:
