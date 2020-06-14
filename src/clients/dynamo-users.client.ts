@@ -50,7 +50,7 @@ export async function findUsers(
 ): Promise<APIGatewayProxyResult> {
   const params: DynamoDB.DocumentClient.ScanInput = {
     TableName: process.env.USERS_TABLE,
-    FilterExpression: "begins_with (userName, :val)",
+    FilterExpression: "begins_with (username, :val)",
     ExpressionAttributeValues: { ":val": searchTerm },
   };
 

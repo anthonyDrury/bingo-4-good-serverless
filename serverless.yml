@@ -59,12 +59,14 @@ functions:
           cors: true
           authorizer: authorizerFunc
   getFriends:
-    handler: src/handlers/post.getFriends
+    handler: src/handlers/get.getFriends
     events:
       - http:
           path: getFriends
-          method: post
+          method: get
           cors: true
+          querystrings:
+            url: true
           authorizer: authorizerFunc
   getBingoCard:
     handler: src/handlers/get.getBingoCard
