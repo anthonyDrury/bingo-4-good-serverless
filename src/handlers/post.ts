@@ -2,27 +2,9 @@
 
 import { APIGatewayProxyHandler } from "aws-lambda/trigger/api-gateway-proxy";
 import { isDefined } from "../common/support";
-import { addFriendIDToUser, getUsers } from "../clients/dynamo-users.client";
+import { addFriendIDToUser } from "../clients/dynamo-users.client";
 import { updateAnswer } from "../clients/dynamo-bingo-answers.client";
 import { bingAnswersMap } from "../types/dynamo.type";
-
-// POST
-// BODY PARAMS:
-// userIDs REQUIRED
-export const getFriends: APIGatewayProxyHandler = async (event) => {
-  const body = JSON.parse(event.body);
-  if (!isDefined(body.usernames)) {
-    return { statusCode: 500, body: "No body param: usernames" };
-  }
-  await getUsers(body.usernames).then(
-    (success) => {
-      return success;
-    },
-    (error) => {
-      return error;
-    }
-  );
-};
 
 // POST
 // BODY PARAMS:
