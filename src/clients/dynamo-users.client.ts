@@ -140,7 +140,6 @@ export async function getUsers(
             statusCode: Number(error.code),
             body: error.message,
           });
-          return;
         }
         resolve({
           statusCode: 200,
