@@ -169,9 +169,12 @@ export async function addFriendIDToUser(
     Key: {
       username: currentUsername,
     },
-    ExpressionAttributeValues: { ":friendId": [username] },
+    ExpressionAttributeValues: {
+      ":friendId": [username],
+      ":friendIdStr": username,
+    },
     UpdateExpression: "set friends = list_append (friends, :friendId)",
-    ConditionExpression: "not contains (friends, :friendId)",
+    ConditionExpression: "not contains (friends, :friendIdStr)",
   };
 
   return await new Promise(
