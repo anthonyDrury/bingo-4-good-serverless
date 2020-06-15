@@ -19,18 +19,25 @@ export const getCurrentUser: APIGatewayProxyHandler = async (event) => {
 // BODY PARAMS:
 // userIDs REQUIRED
 export const getFriends: APIGatewayProxyHandler = async (event) => {
-  const usernames = JSON.parse(event.queryStringParameters.usernames);
-  if (!isDefined(usernames) || usernames === []) {
-    return { statusCode: 500, body: "No body param: usernames" };
+  const usernames =
+    event.queryStringParameters &&
+    event.queryStringParameters.usernames &&
+    event.queryStringParameters.usernames.split(",");
+
+  if (!isDefined(usernames) || !Array.isArray(usernames) || usernames === []) {
+    return { statusCode: 500, body: "No query param: usernames" };
   }
+
+  let result: APIGatewayProxyResult;
   await getUsers(usernames).then(
     (success) => {
-      return success;
+      result = success;
     },
     (error) => {
-      return error;
+      result = error;
     }
   );
+  return result;
 };
 
 export const searchUsers: APIGatewayProxyHandler = async (event) => {
