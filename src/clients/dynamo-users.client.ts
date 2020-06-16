@@ -143,7 +143,8 @@ export async function getUsers(
         }
         resolve({
           statusCode: 200,
-          body: JSON.stringify(data.Responses),
+          // Return only the array of users
+          body: JSON.stringify(data.Responses.Users),
         });
       });
     }
