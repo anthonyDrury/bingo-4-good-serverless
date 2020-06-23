@@ -44,7 +44,7 @@ export async function updateAnswer(
 
 export async function getAnswers(
   date: number,
-  username
+  username: string
 ): Promise<APIGatewayProxyResult> {
   const params: DynamoDB.DocumentClient.GetItemInput = {
     TableName: BingoAnswerTable,

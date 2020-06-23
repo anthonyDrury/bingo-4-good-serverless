@@ -80,11 +80,11 @@ export const getBingoAnswers: APIGatewayProxyHandler = async (event) => {
   if (!isDefined(event.queryStringParameters.date)) {
     result = { statusCode: 500, body: "No query param: date" };
   }
-  const claimedUserName = event.requestContext.authorizer.principalId;
-  await getAnswers(
-    Number(event.queryStringParameters.date),
-    claimedUserName
-  ).then(
+  const username = isDefined(event.queryStringParameters.username)
+    ? event.queryStringParameters.username
+    : event.requestContext.authorizer.principalId;
+
+  await getAnswers(Number(event.queryStringParameters.date), username).then(
     (success) => {
       result = success;
     },
