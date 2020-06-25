@@ -1,5 +1,5 @@
 import { baseUser } from "../types/API.types";
-import { usersCollection } from "../types/dynamo.type";
+import { usersCollection, bingAnswersMap } from "../types/dynamo.type";
 
 export function isDefined(x: any | undefined | null): boolean {
   return x !== undefined && x !== null;
@@ -42,4 +42,21 @@ export function generateAccumulateArr(num: number): number[] {
   }
 
   return newArr;
+}
+
+// If answer is private, do not return it
+export function removePrivateAnswers(
+  answers: bingAnswersMap[]
+): bingAnswersMap[] {
+  return answers.map(
+    (answer): bingAnswersMap => {
+      if (answer.private) {
+        return {
+          ...answer,
+          answer: "",
+        };
+      }
+      return answer;
+    }
+  );
 }

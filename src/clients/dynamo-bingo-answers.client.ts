@@ -1,6 +1,7 @@
 import { DynamoDB } from "aws-sdk";
 import { APIGatewayProxyResult } from "aws-lambda";
 import { bingoAnswers } from "../types/dynamo.type";
+import { removePrivateAnswers, isDefined } from "../common/support";
 
 const dynamoDb = new DynamoDB.DocumentClient();
 const BingoAnswerTable = process.env.BINGO_ANSWERS_TABLE;
@@ -58,15 +59,23 @@ export async function getAnswers(
     ): void => {
       dynamoDb.get(params, (error, data) => {
         if (error) {
+          console.log(error);
           reject({
-            statusCode: Number(error.code),
+            statusCode: 500,
             body: error.message,
           });
           return;
         }
+        const response =
+          isDefined(data.Item) && username !== undefined
+            ? {
+                ...data.Item,
+                answers: removePrivateAnswers(data.Item.answers),
+              }
+            : data.Item;
         resolve({
           statusCode: 200,
-          body: JSON.stringify(data.Item),
+          body: JSON.stringify(response),
         });
       });
     }
