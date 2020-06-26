@@ -9,7 +9,7 @@ export async function addNewUser(
   username: string,
   email: string
 ): Promise<void | APIGatewayProxyResult> {
-  const params = {
+  const params: DynamoDB.DocumentClient.PutItemInput = {
     TableName: process.env.USERS_TABLE,
     Item: {
       ...generateUser({ username, email }),

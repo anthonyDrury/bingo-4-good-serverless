@@ -4,7 +4,7 @@ import { APIGatewayProxyHandler } from "aws-lambda/trigger/api-gateway-proxy";
 import { isDefined } from "../common/support";
 import { addFriendIDToUser } from "../clients/dynamo-users.client";
 import { updateAnswer } from "../clients/dynamo-bingo-answers.client";
-import { bingAnswersMap } from "../types/dynamo.type";
+import { bingoAnswersMap } from "../types/dynamo.type";
 
 // POST
 // BODY PARAMS:
@@ -26,14 +26,18 @@ export const addFriend: APIGatewayProxyHandler = async (event) => {
   );
 };
 
-export const answerItem: APIGatewayProxyHandler = async (event) => {
+export const answerItem: APIGatewayProxyHandler = async (
+  event,
+  context,
+  callback
+) => {
   const body = JSON.parse(event.body);
   const claimedUsername = event.requestContext.authorizer.principalId;
   if (!isDefined(body.date)) {
     return { statusCode: 500, body: "No body param: date" };
   }
 
-  function isBodyValid(obj: Partial<bingAnswersMap>) {
+  function isBodyValid(obj: Partial<bingoAnswersMap>) {
     if (
       !isDefined(obj.answer) ||
       !isDefined(obj.itemIndex) ||
@@ -59,7 +63,7 @@ export const answerItem: APIGatewayProxyHandler = async (event) => {
     return { statusCode: 500, body: "Invalid param structure: answers" };
   }
 
-  await updateAnswer({
+  const res = await updateAnswer({
     cardDate: body.date,
     username: claimedUsername,
     answers: body.answers,
@@ -71,4 +75,5 @@ export const answerItem: APIGatewayProxyHandler = async (event) => {
       return err;
     }
   );
+  context.succeed(res);
 };
