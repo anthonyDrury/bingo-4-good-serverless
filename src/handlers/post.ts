@@ -1,6 +1,9 @@
 "use strict";
 
-import { APIGatewayProxyHandler } from "aws-lambda/trigger/api-gateway-proxy";
+import {
+  APIGatewayProxyHandler,
+  APIGatewayProxyResult,
+} from "aws-lambda/trigger/api-gateway-proxy";
 import { isDefined } from "../common/support";
 import { addFriendIDToUser } from "../clients/dynamo-users.client";
 import { updateAnswer } from "../clients/dynamo-bingo-answers.client";
@@ -26,11 +29,7 @@ export const addFriend: APIGatewayProxyHandler = async (event) => {
   );
 };
 
-export const answerItem: APIGatewayProxyHandler = async (
-  event,
-  context,
-  callback
-) => {
+export const answerItem: APIGatewayProxyHandler = async (event, context) => {
   const body = JSON.parse(event.body);
   const claimedUsername = event.requestContext.authorizer.principalId;
   if (!isDefined(body.date)) {
@@ -63,17 +62,18 @@ export const answerItem: APIGatewayProxyHandler = async (
     return { statusCode: 500, body: "Invalid param structure: answers" };
   }
 
-  const res = await updateAnswer({
+  let result: APIGatewayProxyResult;
+  await updateAnswer({
     cardDate: body.date,
     username: claimedUsername,
     answers: body.answers,
   }).then(
     (value) => {
-      return value;
+      result = value;
     },
     (err) => {
-      return err;
+      result = err;
     }
   );
-  context.succeed(res);
+  return result;
 };

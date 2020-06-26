@@ -101,10 +101,16 @@ export function calculateNewUser(
         streak: user.streak,
       }
     : user.basePoints;
+  const userPoints = basePoints.points + newPoints;
+  const userStreak = basePoints.streak + (hasStreak ? 1 : 0);
   return {
     ...user,
-    points: basePoints.points + newPoints,
-    streak: basePoints.streak + (hasStreak ? 1 : 0),
+    points: userPoints,
+    streak: userStreak,
+    highestPoints:
+      user.highestPoints > userPoints ? user.highestPoints : userPoints,
+    highestStreak:
+      user.highestStreak > userStreak ? user.highestStreak : userStreak,
     basePoints,
   };
 }
