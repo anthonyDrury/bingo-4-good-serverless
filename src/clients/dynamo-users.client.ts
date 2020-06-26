@@ -52,6 +52,7 @@ export async function findUsers(
     TableName: process.env.USERS_TABLE,
     FilterExpression: "begins_with (username, :val)",
     ExpressionAttributeValues: { ":val": searchTerm },
+    Limit: 10,
   };
 
   return await new Promise(
