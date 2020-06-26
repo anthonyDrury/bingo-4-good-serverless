@@ -1,5 +1,8 @@
 import { baseUser } from "../types/API.types";
-import { usersCollection, bingAnswersMap } from "../types/dynamo.type";
+import { usersCollection, bingoAnswersMap } from "../types/dynamo.type";
+import { STREAK_MAP } from "../constants/bingo.const";
+import { APIGatewayProxyResult } from "aws-lambda";
+import { findUsers } from "../clients/dynamo-users.client";
 
 export function isDefined(x: any | undefined | null): boolean {
   return x !== undefined && x !== null;
@@ -14,6 +17,11 @@ export function generateUser(base: baseUser): usersCollection {
     streak: 0,
     highestPoints: 0,
     highestStreak: 0,
+    basePoints: {
+      points: 0,
+      streak: 0,
+      cardDate: 0,
+    },
   };
 }
 
@@ -46,10 +54,10 @@ export function generateAccumulateArr(num: number): number[] {
 
 // If answer is private, do not return it
 export function removePrivateAnswers(
-  answers: bingAnswersMap[]
-): bingAnswersMap[] {
+  answers: bingoAnswersMap[]
+): bingoAnswersMap[] {
   return answers.map(
-    (answer): bingAnswersMap => {
+    (answer): bingoAnswersMap => {
       if (answer.private) {
         return {
           ...answer,
@@ -59,4 +67,44 @@ export function removePrivateAnswers(
       return answer;
     }
   );
+}
+
+export function hasStreak(answers: bingoAnswersMap[]) {
+  const answerIndexArr = answers.map((answers) => answers.position);
+
+  // If the answers array has any of the streak combinations
+  const includesStreak = STREAK_MAP.some((streakArr: number[]) =>
+    streakArr.every((num) => answerIndexArr.includes(num))
+  );
+  return includesStreak;
+}
+
+export function isProxyResult(res: APIGatewayProxyResult | any): boolean {
+  if ((res as APIGatewayProxyResult).statusCode) {
+    return true;
+  }
+  return false;
+}
+
+// Calculates the new user when supplied new points and streaks
+export function calculateNewUser(
+  user: usersCollection,
+  hasStreak: boolean,
+  newPoints: number,
+  cardDate: number
+): usersCollection {
+  const isNewDate = user.basePoints.cardDate !== cardDate;
+  const basePoints = isNewDate
+    ? {
+        cardDate,
+        points: user.points,
+        streak: user.streak,
+      }
+    : user.basePoints;
+  return {
+    ...user,
+    points: basePoints.points + newPoints,
+    streak: basePoints.streak + (hasStreak ? 1 : 0),
+    basePoints,
+  };
 }

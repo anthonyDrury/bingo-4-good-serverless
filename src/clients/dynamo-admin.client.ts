@@ -5,7 +5,11 @@ import {
   bingoCardCollection,
   bingoItems,
 } from "../types/dynamo.type";
-import { shuffleArr, generateAccumulateArr } from "../common/support";
+import {
+  shuffleArr,
+  generateAccumulateArr,
+  isProxyResult,
+} from "../common/support";
 import * as moment from "moment";
 import { BINGO_ITEM_VERSION_KEY } from "../constants/dynamo.const";
 
@@ -14,13 +18,6 @@ const describe = new DynamoDB();
 const BingoCardTable = process.env.BINGO_CARDS_TABLE;
 const BingoItemsTable = process.env.BINGO_ITEMS_TABLE;
 const BingoManageTable = process.env.BINGO_MANAGE_TABLE;
-
-function isProxyResult(res: APIGatewayProxyResult | any): boolean {
-  if ((res as APIGatewayProxyResult).statusCode) {
-    return true;
-  }
-  return false;
-}
 
 function addOneDay(date: number): number {
   return Number(moment(date.toString()).add(1, "day").format("YYYYMMDD"));
@@ -244,3 +241,70 @@ export async function scheduledBingoCardCreation(): Promise<
 
   return result;
 }
+
+// // Loops through each user
+// // calculates their points and scores
+// export async function updateUserPointAndScores(): Promise<
+//   APIGatewayProxyResult
+// > {
+//   const scanParams: DynamoDB.DocumentClient.ScanInput = {
+//     TableName: UsersTable,
+//   };
+//   const users = await new Promise(
+//     (
+//       resolve: (x: usersCollection[]) => void,
+//       reject: (err: APIGatewayProxyResult) => void
+//     ): void => {
+//       dynamoDb.scan(scanParams, (error, data) => {
+//         if (error) {
+//           reject({ statusCode: Number(error.code), body: error.message });
+//         } else {
+//           resolve(data.Items as usersCollection[]);
+//         }
+//       });
+//     }
+//   ).then(
+//     (result) => {
+//       return result;
+//     },
+//     (err) => {
+//       return err;
+//     }
+//   );
+//   if (isProxyResult(users)) {
+//     return users;
+//   }
+
+//   users.forEach(async (user) => {
+//     const answersParam: DynamoDB.DocumentClient.GetItemInput = {
+//       TableName: BingoAnswerTable,
+//       Key: { cardDate: date, username },
+//     };
+
+//     const userParam: DynamoDB.DocumentClient.PutItemInput = {
+//       TableName: UsersTable,
+//       Item: user,
+//     };
+//     await new Promise(
+//       (
+//         resolve: (x: void) => void,
+//         reject: (err: APIGatewayProxyResult) => void
+//       ): void => {
+//         dynamoDb.put(userParam, (error) => {
+//           if (error) {
+//             reject({ statusCode: Number(error.code), body: error.message });
+//           } else {
+//             resolve();
+//           }
+//         });
+//       }
+//     ).then(
+//       (result) => {
+//         return result;
+//       },
+//       (err) => {
+//         return err;
+//       }
+//     );
+//   });
+// }

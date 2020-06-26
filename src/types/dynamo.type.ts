@@ -1,6 +1,6 @@
 // Users Table types
 
-// _id - primary key
+// username - primary key
 export type usersCollection = {
   username: string;
   email: string;
@@ -10,6 +10,13 @@ export type usersCollection = {
   streak: number;
   highestPoints: number;
   highestStreak: number;
+  basePoints: usersLastActiveDay;
+};
+
+export type usersLastActiveDay = {
+  points: number;
+  streak: number;
+  cardDate: number;
 };
 
 export type friends = {
@@ -59,10 +66,10 @@ export type bingoManage = {
 export type bingoAnswers = {
   cardDate: number;
   username: string;
-  answers: bingAnswersMap[];
+  answers: bingoAnswersMap[];
 };
 
-export type bingAnswersMap = bingoItemShort & {
+export type bingoAnswersMap = bingoItemShort & {
   answer: string;
   private: boolean;
 };
