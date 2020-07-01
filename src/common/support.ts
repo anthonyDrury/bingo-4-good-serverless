@@ -2,7 +2,6 @@ import { baseUser } from "../types/API.types";
 import { usersCollection, bingoAnswersMap } from "../types/dynamo.type";
 import { STREAK_MAP } from "../constants/bingo.const";
 import { APIGatewayProxyResult } from "aws-lambda";
-import { findUsers } from "../clients/dynamo-users.client";
 
 export function isDefined(x: any | undefined | null): boolean {
   return x !== undefined && x !== null;

@@ -40,6 +40,7 @@ export type bingoCardCollection = {
 export type bingoItemShort = {
   itemIndex: number;
   statement: string;
+  label?: string;
   position: number;
 };
 
@@ -51,9 +52,7 @@ export type bingoItems = {
   _id: string;
   index: number;
   statement: string;
-  prevUsed: number[];
-  lastUsedDate?: number;
-  disabled: boolean;
+  label?: string;
 };
 
 // Bingo Manage Table types
