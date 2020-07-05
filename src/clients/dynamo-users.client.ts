@@ -48,9 +48,12 @@ export async function addNewUser(
 export async function findUsers(
   searchTerm: string
 ): Promise<APIGatewayProxyResult> {
+  // If displayName exists, check against that
+  // otherwise check against username
   const params: DynamoDB.DocumentClient.ScanInput = {
     TableName: process.env.USERS_TABLE,
-    FilterExpression: "begins_with (username, :val)",
+    FilterExpression:
+      "(attribute_not_exists (displayName) and begins_with (username, :val)) or begins_with (displayName, :val)",
     ExpressionAttributeValues: { ":val": searchTerm },
     Limit: 10,
   };
@@ -176,6 +179,46 @@ export async function addFriendIDToUser(
     },
     UpdateExpression: "set friends = list_append (friends, :friendId)",
     ConditionExpression: "not contains (friends, :friendIdStr)",
+  };
+
+  return await new Promise(
+    (
+      resolve: (x: APIGatewayProxyResult) => void,
+      reject: (err: APIGatewayProxyResult) => void
+    ): void => {
+      dynamoDb.update(params, function (error, data) {
+        if (error) {
+          reject({ statusCode: Number(error.code), body: error.message });
+        }
+        resolve({
+          statusCode: 200,
+          body: JSON.stringify(data),
+        });
+      });
+    }
+  ).then(
+    (result) => {
+      return result;
+    },
+    (err) => {
+      return err;
+    }
+  );
+}
+
+export async function addDisplayNameToUser(
+  currentUsername: string,
+  displayName: string
+): Promise<APIGatewayProxyResult> {
+  const params: DynamoDB.DocumentClient.UpdateItemInput = {
+    TableName: process.env.USERS_TABLE,
+    Key: {
+      username: currentUsername,
+    },
+    ExpressionAttributeValues: {
+      ":displayName": displayName,
+    },
+    UpdateExpression: "set displayName = :displayName",
   };
 
   return await new Promise(
