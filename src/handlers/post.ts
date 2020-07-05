@@ -5,7 +5,10 @@ import {
   APIGatewayProxyResult,
 } from "aws-lambda/trigger/api-gateway-proxy";
 import { isDefined } from "../common/support";
-import { addFriendIDToUser } from "../clients/dynamo-users.client";
+import {
+  addFriendIDToUser,
+  addDisplayNameToUser,
+} from "../clients/dynamo-users.client";
 import { updateAnswer } from "../clients/dynamo-bingo-answers.client";
 import { bingoAnswersMap } from "../types/dynamo.type";
 
@@ -19,7 +22,26 @@ export const addFriend: APIGatewayProxyHandler = async (event) => {
   if (!isDefined(body.friendUsername)) {
     return { statusCode: 500, body: "No body param: friendUsername" };
   }
-  await addFriendIDToUser(claimedUserName, body.friendUsername).then(
+  return await addFriendIDToUser(claimedUserName, body.friendUsername).then(
+    (success) => {
+      return success;
+    },
+    (err) => {
+      return err;
+    }
+  );
+};
+
+// For third party sign-in
+// Need user friendly displayName
+export const addDisplayName: APIGatewayProxyHandler = async (event) => {
+  const claimedUserName = event.requestContext.authorizer.principalId;
+  const body = JSON.parse(event.body);
+
+  if (!isDefined(body.displayName)) {
+    return { statusCode: 500, body: "No body param: displayName" };
+  }
+  return await addDisplayNameToUser(claimedUserName, body.displayName).then(
     (success) => {
       return success;
     },

@@ -96,6 +96,14 @@ functions:
           cors: true
           authorizer: authorizerFunc
     handler: src/handlers/post.addFriend
+  addDisplayName:
+    events:
+      - http:
+          path: addDisplayName
+          method: post
+          cors: true
+          authorizer: authorizerFunc
+    handler: src/handlers/post.addDisplayName
   searchUsers:
     events:
       - http:
