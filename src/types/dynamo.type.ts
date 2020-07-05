@@ -3,6 +3,7 @@
 // username - primary key
 export type usersCollection = {
   username: string;
+  displayName?: string;
   email: string;
   status: "free" | "paid" | "admin";
   friends: friends[];
