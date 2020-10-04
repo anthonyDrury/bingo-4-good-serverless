@@ -55,7 +55,6 @@ export async function findUsers(
     FilterExpression:
       "(attribute_not_exists (displayName) and begins_with (username, :val)) or begins_with (displayName, :val)",
     ExpressionAttributeValues: { ":val": searchTerm },
-    Limit: 10,
   };
 
   return await new Promise(
@@ -71,6 +70,44 @@ export async function findUsers(
         resolve({
           statusCode: 200,
           body: JSON.stringify(data.Items),
+        });
+      });
+    }
+  ).then(
+    (result) => {
+      return result;
+    },
+    (err) => {
+      return err;
+    }
+  );
+}
+
+export async function isDisplayNameTaken(
+  searchTerm: string
+): Promise<APIGatewayProxyResult> {
+  // If displayName exists, check against that
+  // otherwise check against username
+  const params: DynamoDB.DocumentClient.ScanInput = {
+    TableName: process.env.USERS_TABLE,
+    FilterExpression:
+      "(attribute_not_exists (displayName) and username = :val) or displayName = :val",
+    ExpressionAttributeValues: { ":val": searchTerm },
+  };
+
+  return await new Promise(
+    (
+      resolve: (x: APIGatewayProxyResult) => void,
+      reject: (err: APIGatewayProxyResult) => void
+    ): void => {
+      dynamoDb.scan(params, function (error, data) {
+        if (error) {
+          reject({ statusCode: Number(error.code), body: error.message });
+          return;
+        }
+        resolve({
+          statusCode: 200,
+          body: JSON.stringify(!!data.Items?.length),
         });
       });
     }

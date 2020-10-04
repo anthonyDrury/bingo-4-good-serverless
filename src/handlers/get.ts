@@ -2,7 +2,12 @@
 
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import { isDefined } from "../common/support";
-import { findUsers, getUser, getUsers } from "../clients/dynamo-users.client";
+import {
+  findUsers,
+  getUser,
+  getUsers,
+  isDisplayNameTaken,
+} from "../clients/dynamo-users.client";
 import { getBingoCardFromTable } from "../clients/dynamo-bingo-card.client";
 import { getAnswers } from "../clients/dynamo-bingo-answers.client";
 
@@ -92,5 +97,24 @@ export const getBingoAnswers: APIGatewayProxyHandler = async (event) => {
       result = err;
     }
   );
+  return result;
+};
+
+export const getIsDisplayNameTaken: APIGatewayProxyHandler = async (event) => {
+  let result: APIGatewayProxyResult;
+
+  if (!isDefined(event.queryStringParameters.search)) {
+    result = { statusCode: 500, body: "No query param: search" };
+  }
+
+  await isDisplayNameTaken(event.queryStringParameters.search).then(
+    (response): void => {
+      result = response;
+    },
+    (err) => {
+      result = err;
+    }
+  );
+
   return result;
 };
