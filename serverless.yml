@@ -104,6 +104,16 @@ functions:
           cors: true
           authorizer: authorizerFunc
     handler: src/handlers/post.addDisplayName
+  isDisplayNameTaken:
+    events:
+      - http:
+          path: isDisplayNameTaken
+          method: get
+          cors: true
+          querystrings:
+            url: true
+          authorizer: authorizerFunc
+    handler: src/handlers/get.getIsDisplayNameTaken
   searchUsers:
     events:
       - http:
