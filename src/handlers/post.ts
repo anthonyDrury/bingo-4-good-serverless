@@ -51,7 +51,7 @@ export const addDisplayName: APIGatewayProxyHandler = async (event) => {
   );
 };
 
-export const answerItem: APIGatewayProxyHandler = async (event, context) => {
+export const answerItem: APIGatewayProxyHandler = async (event) => {
   const body = JSON.parse(event.body);
   const claimedUsername = event.requestContext.authorizer.principalId;
   if (!isDefined(body.date)) {
@@ -76,9 +76,9 @@ export const answerItem: APIGatewayProxyHandler = async (event, context) => {
     return { statusCode: 500, body: "No body param: answers" };
   }
 
-  const isParamValid =
-    body.answers.length &&
-    (body.answers as []).map(isBodyValid).reduce((prev, curr) => prev && curr);
+  const isParamValid = body.answers?.length
+    ? (body.answers as []).map(isBodyValid).reduce((prev, curr) => prev && curr)
+    : true;
 
   if (!isParamValid) {
     return { statusCode: 500, body: "Invalid param structure: answers" };
