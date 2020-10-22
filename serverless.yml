@@ -140,6 +140,8 @@ functions:
     handler: src/handlers/post.answerItem
   authorizerFunc:
     handler: src/handlers/authorizer.authorize
+  preSignUpConfirmUser:
+    handler: src/handlers/admin.autoConfirmUserCognitoPreSignUp
   scheduledFiveDayBingoCards:
     handler: src/handlers/admin.scheduledFiveDayBingoCards
     events:

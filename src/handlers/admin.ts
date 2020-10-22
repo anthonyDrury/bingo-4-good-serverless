@@ -4,6 +4,7 @@ import {
 } from "aws-lambda";
 import { scheduledBingoCardCreation } from "../clients/dynamo-admin.client";
 import { addNewUser } from "../clients/dynamo-users.client";
+import { Callback, Context } from "aws-lambda";
 
 export const scheduledFiveDayBingoCards: APIGatewayProxyHandler = async () => {
   return await scheduledBingoCardCreation().then(
@@ -28,3 +29,13 @@ export const registerUser = async (
   }
   callback(null, event);
 };
+
+export function autoConfirmUserCognitoPreSignUp(
+  event: any,
+  context: Context,
+  callback: Callback
+): void {
+  event.response.autoConfirmUser = true;
+  event.response.autoVerifyEmail = true;
+  callback(null, event);
+}
